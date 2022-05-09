@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>simpleheat demo</title>
+    <style>
+        body { text-align: center;  }
+       
+       
+        .options input { width: 200px; }
+    </style>
+</head>
+<link rel="stylesheet" href="css.css">
+<body>
+    
+   
+
+    <p>
+<div id="diva">
+<div class="container">
+   
+    <div class="options">
+        <input onchange="kk()" type="range" id="tink"  value="1"    min="10" max="20" ><br/>
+        <input type="text" id="radius" value="100"   ><br />
+        <input type="range" id="blurr" value="19" min="10" max="50" style="display: none;">
+        <p id="budget">08:00</p>
+
+    </div>
+    <canvas id="canvas" width="1000" height="600"></canvas>
+
+</div>
+</div>
+<script>
+
+function kk(params) {
+//     if (tink.value==10) {
+//     budget.innerHTML = "08:00"
+    
+ 
+
+// } 
+if (tink.value==11) {
+
+    tink.value=11
+    radius.value = 19
+    budget.innerHTML = "09:00"
+
+} 
+// if (radius.value==12) {
+    
+//     budget.innerHTML = "10:00"
+
+// } 
+// if (radius.value==13) {
+//     budget.innerHTML = "11:00"
+// } 
+// if (radius.value==14) {
+//     budget.innerHTML = "12:00"
+// } 
+// if (radius.value==15) {
+//     budget.innerHTML = "13:00"
+// } 
+// if (radius.value==16) {
+//     budget.innerHTML = "14:00"
+// } 
+// if (radius.value==17) {
+//     budget.innerHTML = "15:00"
+// }
+//  if (radius.value==18) {
+//     budget.innerHTML = "16:00"
+
+// } 
+// if (radius.value==19) {
+//     budget.innerHTML = "17:00"
+
+// } 
+// if (radius.value==20) {
+//     budget.innerHTML = "18:00"
+
+// } 
+
+}
+
+    </script>
+    
+<script src="../simpleheat.js"></script>
+<script src="data.js"></script>
+<script>
+
+window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                               window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+function get(id) {
+    return document.getElementById(id);
+}
+
+var heat = simpleheat('canvas').data(data2).max(18),
+    frame;
+
+function draw() {
+    console.time('draw');
+    heat.draw();
+    console.timeEnd('draw');
+    frame = null;
+}
+
+draw();
+
+get('canvas').onclick = function (e) {
+    heat.add([e.layerX, e.layerY, 1]);
+    frame = frame || window.requestAnimationFrame(draw);
+};
+
+var radius = get('radius'),
+    blurr = get('blur'),
+    changeType = 'oninput' in tink ? 'oninput' : 'onchange';
+
+radius[changeType] = blur[changeType] = function (e) {
+    heat.radius(+radius.value);
+    frame = frame || window.requestAnimationFrame(draw);
+};
+if (changeType>11) {
+diva.style.display = 'none'
+}
+
+</script>
+</body>
+</html>
+
