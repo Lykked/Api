@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROXMOOV | GRÁFICOS</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="styleDash.css">
+</head>
+<link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="dashboards.css">
+    <script src="../js/funcoes.js"></script>
+    <script type="text/javascript" src="https://www.chartjs.org/dist/2.8.0/Chart.min.js"></script>
+
+    <body onload="validarSessao(), atualizarFeed()" style="display: flex;">
+
+    <!--header começo-->
+    <header>
+        <div class="left">
+            <h3><a href="dashboard.html">PROX<span>MOOV</span></a></h3>
+        </div>
+        <div class="right">
+            <a href="../login.html" class="sair_btn">Sair</a>
+        </div>
+    </header>
+    <!--header final-->
+    <!--sidebar começo-->
+    <div class="sidebar">
+        <center>
+            <img src="image/cucas.jpg" class="image" alt="" hidden>
+            <h2>Olá, Lucas</h2>
+        </center>
+        <a href="dashboard.html">
+            <ion-icon name="browsers-outline"></ion-icon><span> Inicio</span>
+        </a>
+        <a href="#" class="sidebar2">
+            <ion-icon name="bar-chart-outline"></ion-icon><span> Painel de Gráficos</span>
+        </a>
+        <a href="#">
+            <ion-icon name="thermometer-outline"></ion-icon>
+            <span> Mapa de calor</span>
+        </a>
+        <a href="infoImportante.html">
+            <ion-icon name="information-circle-outline"></ion-icon><span> Informações importantes</span>
+        </a>
+        <a href="infoUsuario.html">
+            <ion-icon name="person-circle-outline"></ion-icon><span> Minhas informações</span>
+        </a>
+        <a href="FAQ2html">
+            <ion-icon name="help-outline"></ion-icon><span> FAQ</span>
+        </a>
+        <a href="https://proxmoove.tomticket.com/?account=3669056P19052022122020" target="_blank">
+            <ion-icon name="people-circle-outline"></ion-icon>
+            <span> Suporte</span>
+        </a>
+    </div>
+    <!--sidebar final-->
+    <div class="content2">
+        <div class="nome1">
+        <br>
+        <div id="chartSemana">
+            <canvas id="myChart2" style="position: relative; height:50vh; width:80vw"></canvas>
+        </div>
+        <br>
+      
+        <br>
+        <div id="chartCompara">
+            <canvas id="myChart3" style="position: relative; height:60vh; width:80vw;"></canvas>
+        </div>
+        <div style="color: rgb(158, 30, 94);"></div>
+    </div>
+</body>
+
+<script>
+
+    let proximaAtualizacao;
+
+    window.onload = obterDadosGrafico(1);
+
+    b_usuario.innerHTML = sessionStorage.NOME_USUARIO;
+
+    verificar_autenticacao();
+
+    // Esta função *obterDadosGrafico* busca os últimos dados inseridos em tabela de medidas.
+    // para, quando carregar o gráfico da primeira vez, já trazer com vários dados.
+    // A função *obterDadosGrafico* também invoca a função *plotarGrafico*
+
+    //     Se quiser alterar a busca, ajuste as regras de negócio em src/controllers
+    //     Para ajustar o "select", ajuste o comando sql em src/models
+    function obterDadosGrafico(idMedidas) {
+        if (proximaAtualizacao != undefined) {
+            clearTimeout(proximaAtualizacao);
+        }
+
+        fetch(`/medidas/ultimas/${idMedidas}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+                    resposta.reverse();
+
+                    plotarGrafico(resposta, idMedidas);
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+    }
+
+    // Esta função *plotarGrafico* usa os dados capturados na função anterior para criar o gráfico
+    // Configura o gráfico (cores, tipo, etc), materializa-o na página e, 
+    // A função *plotarGrafico* também invoca a função *atualizarGrafico*
+    function plotarGrafico(resposta, idMedidas) {
+        console.log('iniciando plotagem do gráfico...');
+
+        var dados = {
+            labels: [],
+            datasets: [
+                {
+                    yAxisID: 'y-umidade',
+                    label: 'caixa',
+                    borderColor: '#32B9CD',
+                    backgroundColor: '#32b9cd8f',
+                    fill: true,
+                    data: []
+                },
+                {
+                    yAxisID: 'y-temperatura',
+                    label: 'corredor1',
+                    borderColor: '#FFF',
+                    backgroundColor: '#32b9cd8f',
+                    fill: true,
+                    data: []
+                },{
+                    yAxisID: 'y-temperatura',
+                    label: 'corredor2',
+                    borderColor: '#FFF',
+                    backgroundColor: '#32b9cd8f',
+                    fill: true,
+                    data: []
+                },{
+                    yAxisID: 'y-temperatura',
+                    label: 'corredor3',
+                    borderColor: '#FFF',
+                    backgroundColor: '#32b9cd8f',
+                    fill: true,
+                    data: []
+                },{
+                    yAxisID: 'y-temperatura',
+                    label: 'corredor4',
+                    borderColor: '#FFF',
+                    backgroundColor: '#32b9cd8f',
+                    fill: true,
+                    data: []
+                },
+                {
+                    yAxisID: 'y-temperatura',
+                    label: 'corredor5',
+                    borderColor: '#FFF',
+                    backgroundColor: '#32b9cd8f',
+                    fill: true,
+                    data: []
+                }
+            ]
+        };
+
+        for (i = 0; i < resposta.length; i++) {
+            var registro = resposta[i];
+            dados.labels.push(registro.momento_grafico);
+            dados.datasets[0].data.push(registro.quantidade);
+            dados.datasets[1].data.push(registro.corredor1*30);
+            dados.datasets[2].data.push(registro.corredor1*65);
+            dados.datasets[3].data.push(registro.corredor1*99);
+            dados.datasets[4].data.push(registro.corredor1*141);
+            dados.datasets[5].data.push(registro.corredor1*220);
+        }
+
+        console.log(JSON.stringify(dados));
+
+        var ctx = canvas_grafico.getContext('2d');
+        window.grafico_linha = Chart.Line(ctx, {
+            data: dados,
+            options: {
+                responsive: true,
+                animation: { duration: 500 },
+                hoverMode: 'index',
+                stacked: false,
+                title: {
+                    display: true,
+                    text: 'Quantidade de contagens por setor'
+                },
+                scales: {
+                    yAxes: [{
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        id: 'y-temperatura',
+                        ticks: {
+                            beginAtZero: true,
+                            max: 250,
+                            min: 0
+                        }
+                    }, {
+                        type: 'linear',
+                        display: false,
+                        position: 'right',
+                        id: 'y-umidade',
+                        ticks: {
+                            beginAtZero: true,
+                            max: 250,
+                            min: 0
+                        },
+
+                        gridLines: {
+                            drawOnChartArea: false,
+                        },
+                    }],
+                }
+            }
+        });
+
+        setTimeout(() => atualizarGrafico(idMedidas, dados), 2000);
+    }
+
+    
+    // Esta função *atualizarGrafico* atualiza o gráfico que foi renderizado na página,
+    // buscando a última medida inserida em tabela contendo as capturas, 
+
+    //     Se quiser alterar a busca, ajuste as regras de negócio em src/controllers
+    //     Para ajustar o "select", ajuste o comando sql em src/models
+    function atualizarGrafico(idMedidas, dados) {
+
+        fetch(`/medidas/tempo-real/${idMedidas}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (novoRegistro) {
+
+                    console.log(`Dados recebidos: ${JSON.stringify(novoRegistro)}`);
+                    console.log(`Dados atuais do gráfico: ${dados}`);
+
+                    // tirando e colocando valores no gráfico
+                    dados.labels.shift(); // apagar o primeiro
+                    dados.labels.push(novoRegistro[0].momento_grafico); // incluir um novo momento
+                    
+                    dados.datasets[0].data.shift();  // apagar o primeiro de umidade
+                    dados.datasets[0].data.push(novoRegistro[0].umidade); // incluir uma nova medida de umidade
+                    
+                    dados.datasets[1].data.shift();  // apagar o primeiro de temperatura
+                    dados.datasets[1].data.push(novoRegistro[0].temperatura); // incluir uma nova medida de temperatura
+
+                    dados.datasets[2].data.shift();  // apagar o primeiro de temperatura
+                    dados.datasets[2].data.push(novoRegistro[0].temperatura); // incluir uma nova medida de temperatura
+                    
+                    dados.datasets[3].data.shift();  // apagar o primeiro de temperatura
+                    dados.datasets[3].data.push(novoRegistro[0].temperatura); // incluir uma nova medida de temperatura
+
+                    dados.datasets[4].data.shift();  // apagar o primeiro de temperatura
+                    dados.datasets[4].data.push(novoRegistro[0].temperatura); // incluir uma nova medida de temperatura
+
+                    dados.datasets[5].data.shift();  // apagar o primeiro de temperatura
+                    dados.datasets[5].data.push(novoRegistro[0].temperatura); // incluir uma nova medida de temperatura
+                    window.grafico_linha.update();
+
+                    // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                    proximaAtualizacao = setTimeout(() => atualizarGrafico(idMedidas, dados), 2000);
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+                // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                proximaAtualizacao = setTimeout(() => atualizarGrafico(idMedidas, dados), 2000);
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+
+    }
+</script>
+</html>
